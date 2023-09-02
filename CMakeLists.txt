@@ -9,40 +9,55 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(Qt6 COMPONENTS Core)
+find_package(Qt6 COMPONENTS Gui)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Network)
+find_package(Qt6 REQUIRED COMPONENTS Multimedia)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+		main.cpp
+		mainwindow.cpp
+		mainwindow.h
+		mainwindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(RemoteBoomBox
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
+	qt_add_executable(RemoteBoomBox
+		MANUAL_FINALIZATION
+		${PROJECT_SOURCES}
+		apploader.h apploader.cpp
+		serverwindow.h serverwindow.cpp serverwindow.ui
+		clientwindow.h clientwindow.cpp clientwindow.ui
+		serverapp.h serverapp.cpp
+		clientapp.h clientapp.cpp
+		app.h app.cpp
+		config.h config.cpp
+	)
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET RemoteBoomBox APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
-    if(ANDROID)
-        add_library(RemoteBoomBox SHARED
-            ${PROJECT_SOURCES}
-        )
+	if(ANDROID)
+		add_library(RemoteBoomBox SHARED
+			${PROJECT_SOURCES}
+		)
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(RemoteBoomBox
-            ${PROJECT_SOURCES}
-        )
-    endif()
+	else()
+		add_executable(RemoteBoomBox
+			${PROJECT_SOURCES}
+		)
+	endif()
 endif()
 
 target_link_libraries(RemoteBoomBox PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(RemoteBoomBox PRIVATE Qt6::Network)
+target_link_libraries(RemoteBoomBox PRIVATE Qt6::Multimedia)
+target_link_libraries(RemoteBoomBox PRIVATE Qt6::Gui)
+target_link_libraries(RemoteBoomBox PRIVATE Qt6::Core)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
@@ -51,20 +66,20 @@ if(${QT_VERSION} VERSION_LESS 6.1.0)
   set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.RemoteBoomBox)
 endif()
 set_target_properties(RemoteBoomBox PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+	${BUNDLE_ID_OPTION}
+	MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+	MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+	MACOSX_BUNDLE TRUE
+	WIN32_EXECUTABLE TRUE
 )
 
 include(GNUInstallDirs)
 install(TARGETS RemoteBoomBox
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	BUNDLE DESTINATION .
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(RemoteBoomBox)
+	qt_finalize_executable(RemoteBoomBox)
 endif()
