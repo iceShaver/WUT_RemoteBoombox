@@ -2,5 +2,5 @@
 
 App::App(bool const textModeFlag)
 	: textModeFlag(textModeFlag)
-	, pUdpSocket(new QUdpSocket())
+	, pCommModule(new CommunicationModule())
 {}

@@ -2,23 +2,26 @@
 #define SERVERAPP_H
 
 #include "app.h"
+#include "soundcollector.h"
 #include <QMediaRecorder>
 #include <QAudioInput>
 #include <QMediaCaptureSession>
+#include <QAudioFormat>
+#include <QAudioSource>
 #include "serverwindow.h"
+#include "QMediaDevices"
 
-
-class ServerApp : App
+class ServerApp : public App
 {
 public:
-	ServerApp(bool const textModeFlag);
-	void start();
-	void stop();
+    ServerApp(bool const textModeFlag);
+    void start();
+    void stop();
+    void toggleMode();
+
 private:
-	QMediaCaptureSession session;
-	QAudioInput input;
-	QMediaRecorder rec;
-	std::unique_ptr<ServerWindow> pServerWindow;
+    std::unique_ptr<ServerWindow> pServerWindow;
+    std::unique_ptr<SoundCollector> pSoundCollector;
 };
 
 #endif // SERVERAPP_H
