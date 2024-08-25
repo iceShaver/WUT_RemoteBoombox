@@ -60,7 +60,6 @@ void ServerWindow::handleButton()
 
 void ServerWindow::newData(double *const p_data, uint32_t const len)
 {
-
     auto fft_out = std::array<double, FFT_BUF_SIZE>{};
     auto fftVec = QVector<double>{};
     auto p = fftw_plan_r2r_1d(FFT_BUF_SIZE, p_data, fft_out.data(), FFTW_R2HC, FFTW_ESTIMATE);
@@ -76,6 +75,8 @@ void ServerWindow::newData(double *const p_data, uint32_t const len)
     ui->widget->graph(0)->setData(x_axis_vals, fftVec);
     ui->widget->replot();
 
-    qDebug() << "Got arr len = " << len << " val = " << p_data[0] << " " << p_data[5] << " " << p_data[20] << " " << p_data[63];
-    qDebug() << "Spectrum size: " << fftVec.size();
+//    qDebug() << "Got arr len = " << len << " val = " << p_data[0] << " " << p_data[5] << " " << p_data[20] << " " << p_data[63];
+//    qDebug() << "Spectrum size: " << fftVec.size();
+
+    this->serverApp.pCommModule->sndSpectogram(fftVec);
 }

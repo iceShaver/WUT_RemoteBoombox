@@ -8,6 +8,7 @@
 #define RANGE_END   12000
 #define SAMPLE_FREQ 48000
 #define FFT_BUF_SIZE (SAMPLE_FREQ / 100u)
+#define USEFUL_SPECTOGRAM_DATA_LEN (FFT_BUF_SIZE / 4u)
 #define NUM_SAMPLES FFT_BUF_SIZE
 
 class SoundCollector  : public QIODevice

@@ -3,6 +3,7 @@
 
 #include <QUdpSocket>
 #include <memory>
+#include "soundcollector.h"
 
 class CommunicationModule : public QObject
 {
@@ -20,12 +21,13 @@ public:
     {
         uint32_t msgId;
         uint32_t seqNo;
-        uint64_t data;
+        double data[USEFUL_SPECTOGRAM_DATA_LEN];
     };
     __pragma(pack(pop))
 
     CommunicationModule();
     void snd(AudioDataType const &audioData);
+    void sndSpectogram(QVector<double> &spectogram);
     void beginRcv(void);
     void rcv();
 
