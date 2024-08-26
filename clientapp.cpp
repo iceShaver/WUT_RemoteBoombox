@@ -1,34 +1,59 @@
 #include "clientapp.h"
+#include "visualizationspectogram.h"
+#include "visualizationvolumebar.h"
+#include "visualizationcolor.h"
+#include "clientwindow.h"
 
 ClientApp::ClientApp(bool const textModeFlag)
     : App(textModeFlag)
 {
     if (false == textModeFlag) {
-        pClientWindow = std::make_unique<ClientWindow>(*this);
+        pClientWindow = std::make_shared<ClientWindow>(*this);
         pClientWindow->show();
     }
 
     pCommModule->beginRcv();
+
     QObject::connect(pCommModule.get(), &CommunicationModule::rcvd, [&](CommunicationModule::AppDataMsg const msg)
     {
-//        qDebug() << "Received: ";
-
         QVector<double> spectogram;
         spectogram.reserve(USEFUL_SPECTOGRAM_DATA_LEN);
         std::copy(msg.data, msg.data + USEFUL_SPECTOGRAM_DATA_LEN, std::back_inserter(spectogram));
-//        qDebug() << "Rcvd id=0x" << Qt::hex << msg.msgId << " seq_no=0x" << msg.seqNo << " val=" << *(double *)&msg.data;
-//        this->pClientWindow->setColor(1000000 * *(double *)&msg.data);
-        this->pClientWindow->updateSpectogram(spectogram);
-    });
-//	pUdpSocket->bind(QHostAddress::Any, 53123);
+        // this->pClientWindow->updateSpectogram(spectogram);
 
-//	qDebug() << "Listener started";
-//	QObject::connect(pUdpSocket.get(), &QUdpSocket::readyRead, [this]() {
-//		auto buf = std::array<char, 255>();
-//		pUdpSocket->readDatagram(buf.data(), buf.size());
-//		qDebug() << "read:";
-//		for (auto const &byte : buf) {
-//			qDebug() << byte;
-//		}
-//	});
+        if (nullptr != this->pActiveVisualization)
+        {
+            this->pActiveVisualization->update(spectogram);
+        }
+
+    });
+}
+
+
+void ClientApp::setVisualization(EVisualization const vis)
+{
+    switch (vis) {
+    case EVisualization::SPECTOGRAM:
+        this->pActiveVisualization = std::make_unique<VisualizationSpectogram>(pClientWindow);
+        break;
+
+    case EVisualization::VOLUME_BAR:
+        this->pActiveVisualization = std::make_unique<VisualizationVolumeBar>(pClientWindow);
+        break;
+
+    case EVisualization::COLOR:
+        this->pActiveVisualization = std::make_unique<VisualizationColor>(pClientWindow);
+        break;
+
+    default:
+        qDebug() << "Unknown visualization";
+        this->pActiveVisualization = nullptr;
+        break;
+    }
+
+    if (nullptr != this->pActiveVisualization)
+    {
+        QWidget *pVisualizationWidget = this->pActiveVisualization->getWidget();
+        this->pClientWindow->setVisualizationWidget(pVisualizationWidget);
+    }
 }

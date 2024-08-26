@@ -2,6 +2,7 @@
 #define CLIENTWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
 
 class ClientApp;
 
@@ -12,17 +13,22 @@ class ClientWindow;
 class ClientWindow : public QMainWindow
 {
     Q_OBJECT
+    friend class ClientApp;
 
 public:
     explicit ClientWindow(ClientApp &clientApp, QWidget *parent = nullptr);
     ~ClientWindow();
     void setColor(double const value);
-    void updateSpectogram(QVector<double> const &spectogram);
+    void setVisualizationWidget(QWidget *pWidget);
 
 private:
     Ui::ClientWindow *ui;
     ClientApp &clientApp;
-    QVector<double> x_axis_vals;
+    QMenu *pVisualizationMenu;
+    QAction *pSetVisualizationSpectogramAction;
+    QAction *pSetVisualizationVolumeBarAction;
+    QAction *pSetVisualizationColorAction;
+    QLabel *infoLabel;
 
 };
 
