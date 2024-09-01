@@ -6,7 +6,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 COMPONENTS Core)
@@ -16,6 +16,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Network)
 find_package(Qt6 REQUIRED COMPONENTS Multimedia)
 find_package(Qt6 REQUIRED COMPONENTS PrintSupport)
+find_package(Qt6 REQUIRED COMPONENTS Charts)
 
 add_library(FFTW3 fftw/libfftw3-3.lib fftw/libfftw3f-3.lib fftw/libfftw3l-3.lib)
 
@@ -59,6 +60,7 @@ target_link_libraries(RemoteBoomBox PUBLIC ${PROJECT_SOURCE_DIR}/fftw/libfftw3-3
 target_link_libraries(RemoteBoomBox PUBLIC ${PROJECT_SOURCE_DIR}/fftw/libfftw3f-3.lib)
 target_link_libraries(RemoteBoomBox PUBLIC ${PROJECT_SOURCE_DIR}/fftw/libfftw3l-3.lib)
 target_link_libraries(RemoteBoomBox PRIVATE Qt6::PrintSupport)
+target_link_libraries(RemoteBoomBox PRIVATE Qt6::Charts)
 set_target_properties(RemoteBoomBox PROPERTIES
 	${BUNDLE_ID_OPTION}
 	WIN32_EXECUTABLE TRUE

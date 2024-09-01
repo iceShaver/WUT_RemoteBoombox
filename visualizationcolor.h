@@ -10,6 +10,12 @@ class VisualizationColor : public Visualization
 public:
     QWidget *getWidget(void) override;
     void update(QVector<double> &spectogram) override;
+
+private:
+    void setNextColor(void);
+    QWidget *pWidget;
+    QPalette palette;
+    Qt::GlobalColor currentColor;
 };
 
 #endif // VISUALIZATIONCOLOR_H
