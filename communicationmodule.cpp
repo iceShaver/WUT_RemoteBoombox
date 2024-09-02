@@ -37,6 +37,7 @@ void CommunicationModule::initServerConnection()
             {
                 if (it->second.delete_flag)
                 {
+                    emit clientConnected(clients.size() - 1u, it->second);
                     clients.erase(it++);
                 }
                 else

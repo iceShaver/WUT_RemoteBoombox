@@ -56,6 +56,6 @@ void VisualizationVolumeBar::update(QVector<double> &spectogram)
 {
     for (auto &&[set, newValue] : std::views::zip(pSets, spectogram))
     {
-        set->replace(0, std::max(newValue, ((set->at(0u) * 9u) + newValue) / 10u));
+        set->replace(0, std::min(10.0, std::max(newValue, ((set->at(0u) * 9u) + newValue) / 10u)));
     }
 }

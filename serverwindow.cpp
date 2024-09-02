@@ -89,7 +89,7 @@ void ServerWindow::newData(double *const p_data, uint32_t const len)
 
     if (0 != fftVec.size())
     {
-        this->updateVolumeLevel((100.0 * std::accumulate(fftVec.begin(), fftVec.end(), 0.0)) / fftVec.size());
+        this->updateVolumeLevel(20.0 * (std::accumulate(fftVec.begin(), fftVec.end(), 0.0)) / fftVec.size());
     }
 
     this->serverApp.commModule.sndSpectogram(fftVec);
@@ -111,5 +111,5 @@ void ServerWindow::updateVolumeLevel(double volumeLevel)
 
     avg = std::max(volumeLevel, ((avg * 9u) + volumeLevel) / 10u);
 
-    volumeLevelBar.setValue((int)avg);
+    volumeLevelBar.setValue(std::min((int)avg, volumeLevelBar.maximum()));
 }
