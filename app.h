@@ -2,18 +2,15 @@
 #define APP_H
 
 #include <QUdpSocket>
-#include <memory>
 #include "communicationmodule.h"
 
+/**
+ * @brief The App class
+ */
 class App
 {
 public:
-    App(bool const textModeFlag);
-    std::unique_ptr<CommunicationModule> pCommModule;
-protected:
-    bool const textModeFlag;
-//	std::unique_ptr<QUdpSocket> pUdpSocket;
-
+    CommunicationModule commModule; /**< Communication module */
 };
 
 #endif // APP_H

@@ -17,17 +17,19 @@ class SoundCollector  : public QIODevice
 
 public:
     SoundCollector();
+    SoundCollector(QAudioDevice dev);
     void start();
     void stop();
     qint64 readData(char *data, qint64 maxlen) override;
     qint64 writeData(const char *data, qint64 len) override;
+    static QList<QAudioDevice> getInputs();
 
 signals:
     void newData(double *const p_data, uint32_t const len);
 
 private:
     QAudioFormat format;
-    std::shared_ptr<QAudioSource> pAudioSrc;
+    std::unique_ptr<QAudioSource> pAudioSrc;
 
 };
 

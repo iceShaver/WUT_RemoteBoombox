@@ -1,24 +1,39 @@
 #include "soundcollector.h"
 #include <QMediaDevices>
+#include <QDebug>
 
-SoundCollector::SoundCollector()
+SoundCollector::SoundCollector() : SoundCollector(QMediaDevices::defaultAudioInput())
+{
+}
+
+SoundCollector::SoundCollector(QAudioDevice dev)
 {
     this->format.setSampleRate(SAMPLE_FREQ);
     this->format.setChannelCount(1);
     this->format.setSampleFormat(QAudioFormat::Int16);
-    this->pAudioSrc = std::make_shared<QAudioSource>(QMediaDevices::defaultAudioInput(), this->format);
-    this->pAudioSrc->start(this);
+
+    this->pAudioSrc = std::make_unique<QAudioSource>(dev, this->format);
     this->start();
+    this->pAudioSrc->start(this);
 }
 
 void SoundCollector::start()
 {
-    this->open(QIODevice::WriteOnly);
+    if (this->pAudioSrc)
+    {
+        this->open(QIODevice::WriteOnly);
+        this->pAudioSrc->start(this);
+    }
+
 }
 
 void SoundCollector::stop()
 {
-    this->close();
+    if (this->pAudioSrc)
+    {
+        this->pAudioSrc->stop();
+        this->close();
+    }
 }
 
 qint64 SoundCollector::readData(char *data, qint64 maxlen)
@@ -41,4 +56,9 @@ qint64 SoundCollector::writeData(const char *data, qint64 len)
     emit newData(p_result, numSamples);
     delete[] p_result;
     return len;
+}
+
+QList<QAudioDevice> SoundCollector::getInputs()
+{
+    return QMediaDevices::audioInputs();
 }

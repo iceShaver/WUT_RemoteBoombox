@@ -5,10 +5,10 @@
 #include "app.h"
 #include "visualization.h"
 
-class ClientApp : App
+class ClientApp : public App
 {
 public:
-    ClientApp(bool const textModeFlag);
+    ClientApp();
 
     void setVisualization(EVisualization const vis);
 

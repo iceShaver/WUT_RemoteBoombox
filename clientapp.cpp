@@ -3,18 +3,18 @@
 #include "visualizationvolumebar.h"
 #include "visualizationcolor.h"
 #include "clientwindow.h"
+#include "config.h"
 
-ClientApp::ClientApp(bool const textModeFlag)
-    : App(textModeFlag)
+ClientApp::ClientApp()
 {
-    if (false == textModeFlag) {
+    if (false == Config::textMode) {
         pClientWindow = std::make_shared<ClientWindow>(*this);
         pClientWindow->show();
     }
 
-    pCommModule->beginRcv();
+    commModule.initClientConnection();
 
-    QObject::connect(pCommModule.get(), &CommunicationModule::rcvd, [&](CommunicationModule::AppDataMsg const msg)
+    QObject::connect(&commModule, &CommunicationModule::rcvd, &commModule, [&](CommunicationModule::AppDataMsg const msg)
     {
         QVector<double> spectogram;
         spectogram.reserve(USEFUL_SPECTOGRAM_DATA_LEN);
@@ -27,8 +27,8 @@ ClientApp::ClientApp(bool const textModeFlag)
         }
 
     });
-}
 
+}
 
 void ClientApp::setVisualization(EVisualization const vis)
 {

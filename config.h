@@ -2,10 +2,9 @@
 #define CONFIG_H
 
 
-class Config
+struct Config
 {
-public:
-	Config();
+    auto inline static textMode = false;
 };
 
 #endif // CONFIG_H

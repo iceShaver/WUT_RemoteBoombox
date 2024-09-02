@@ -5,6 +5,7 @@
 #include "serverapp.h"
 #include <QApplication>
 #include <QCommandLineParser>
+#include "config.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,20 +29,22 @@ int main(int argc, char *argv[])
         {{"t", "tui"}, QApplication::translate("main", "Run application in text mode")});
 
     cmdParser.process(app);
-    auto const textModeFlag = cmdParser.isSet("t");
+    Config::textMode = cmdParser.isSet("t");
     std::unique_ptr<App> pApp = nullptr;
 
-
-
     if (true == cmdParser.isSet("s")) {
-        pApp = std::make_unique<App>(new ServerApp(textModeFlag));
+        pApp = std::make_unique<ServerApp>();
     } else if (true == cmdParser.isSet("c")) {
-        pApp = std::make_unique<App>(new ClientApp(textModeFlag));
+        pApp = std::make_unique<ClientApp>();
     } else {
-        AppLoader appLoader(textModeFlag);
+        AppLoader appLoader;
     }
 
 //	MainWindow w;
 //	w.show();
-    return app.exec();
+
+    auto const retval = app.exec();
+    pApp.release();
+
+    return retval;
 }

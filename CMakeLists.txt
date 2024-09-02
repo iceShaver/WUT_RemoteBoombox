@@ -34,7 +34,7 @@ set(PROJECT_SOURCES
 		serverapp.h serverapp.cpp
 		clientapp.h clientapp.cpp
 		app.h app.cpp
-		config.h config.cpp
+
 		soundcollector.h soundcollector.cpp
 		communicationmodule.h communicationmodule.cpp
 		visualization.h visualization.cpp
@@ -48,6 +48,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 		visualizationspectogram.h visualizationspectogram.cpp
 		visualizationcolor.h visualizationcolor.cpp
 		visualizationvolumebar.h visualizationvolumebar.cpp
+		config.h
+		config.c
+
 	)
 endif()
 

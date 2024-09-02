@@ -3,6 +3,7 @@
 #include <QAudioDevice>
 #include <QAudioFormat>
 #include <QIODevice>
+#include <QSizePolicy>
 #include "serverwindow.h"
 #include "ui_serverwindow.h"
 #include "serverapp.h"
@@ -13,32 +14,40 @@
 ServerWindow::ServerWindow(ServerApp &serverApp, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ServerWindow),
-    serverApp(serverApp)
+    serverApp(serverApp),
+    pSc(std::make_unique<SoundCollector>())
 {
     auto const constexpr X_AXIS_STEP = (RANGE_END - RANGE_START) / (NUM_SAMPLES / 4u);
     auto cur_x_val = RANGE_START;
 
     this->ui->setupUi(this);
-    this->connect(&this->sc, &SoundCollector::newData, this, &ServerWindow::newData);
+    this->connect(this->pSc.get(), &SoundCollector::newData, this, &ServerWindow::newData);
     this->connect(ui->startStopBtn, &QPushButton::released, this, &ServerWindow::handleButton);
 
     for (auto i = 0u; i < NUM_SAMPLES / 4u; ++i) {
         x_axis_vals.append(cur_x_val += X_AXIS_STEP);
     }
 
-    ui->widget->legend->setVisible(false);
-    ui->widget->yAxis->setLabel("SPL [dB]");
-    ui->widget->xAxis->setLabel("Frequency [Hz]");
-    ui->widget->xAxis->setRange(RANGE_START, RANGE_END);
-    ui->widget->yAxis->setRange(0.0, 10.0);
-    ui->widget->clearGraphs();
-    ui->widget->addGraph();
-    ui->widget->graph()->setPen(QPen(Qt::red));
-    ui->widget->graph()->setName("Spectrum");
+    this->connect(this->ui->audioDeviceComboBox, &QComboBox::activated, this, [this](int const idx) {
+        this->disconnect(this->pSc.get(), &SoundCollector::newData, this, &ServerWindow::newData);
+        pSc = std::make_unique<SoundCollector>(this->ui->audioDeviceComboBox->itemData(idx).value<QAudioDevice>());
+        this->connect(this->pSc.get(), &SoundCollector::newData, this, &ServerWindow::newData);
+        ui->startStopBtn->setText("Stop");
+    });
+
+    clientsNoLabel.setText("Connected clients: 0");
+    volumeLevelBar.setFormat("str");
+    volumeLevelBar.setTextVisible(true);
+    volumeLevelBar.setRange(0, 100);
+
+    statusBar()->addPermanentWidget(&clientsNoLabel);
+    statusBar()->addPermanentWidget(&volumeLevelBar, 2);
 }
 
 ServerWindow::~ServerWindow()
 {
+    this->disconnect(this->pSc.get(), &SoundCollector::newData, this, &ServerWindow::newData);
+    this->disconnect(ui->startStopBtn, &QPushButton::released, this, &ServerWindow::handleButton);
     delete this->ui;
 }
 
@@ -48,15 +57,21 @@ void ServerWindow::handleButton()
 
     if ("Start" == ui->startStopBtn->text())
     {
-        this->sc.start();
+        this->pSc->start();
         ui->startStopBtn->setText("Stop");
     }
     else
     {
-        this->sc.stop();
+        this->pSc->stop();
         ui->startStopBtn->setText("Start");
     }
 }
+
+void ServerWindow::clientConnected(uint32_t client_no, Client const &newClient)
+{
+    clientsNoLabel.setText(QString("Connected clients: %1").arg(client_no));
+}
+
 
 void ServerWindow::newData(double *const p_data, uint32_t const len)
 {
@@ -72,11 +87,29 @@ void ServerWindow::newData(double *const p_data, uint32_t const len)
         fftVec.append(abs(fft_out[i]));
     }
 
-    ui->widget->graph(0)->setData(x_axis_vals, fftVec);
-    ui->widget->replot();
+    if (0 != fftVec.size())
+    {
+        this->updateVolumeLevel((100.0 * std::accumulate(fftVec.begin(), fftVec.end(), 0.0)) / fftVec.size());
+    }
 
-//    qDebug() << "Got arr len = " << len << " val = " << p_data[0] << " " << p_data[5] << " " << p_data[20] << " " << p_data[63];
-//    qDebug() << "Spectrum size: " << fftVec.size();
+    this->serverApp.commModule.sndSpectogram(fftVec);
 
-    this->serverApp.pCommModule->sndSpectogram(fftVec);
+}
+
+void ServerWindow::fillDevicesSelector(QList<QAudioDevice> const &devices)
+{
+    for (auto &dev : devices) {
+        this->ui->audioDeviceComboBox->addItem(dev.description(), QVariant::fromValue(dev));
+    }
+
+    this->ui->audioDeviceComboBox->setCurrentIndex(0);
+}
+
+void ServerWindow::updateVolumeLevel(double volumeLevel)
+{
+    auto static avg = 0.0;
+
+    avg = std::max(volumeLevel, ((avg * 9u) + volumeLevel) / 10u);
+
+    volumeLevelBar.setValue((int)avg);
 }

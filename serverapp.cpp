@@ -8,25 +8,30 @@
 #include <QUrl>
 #include <string>
 #include <utility>
+#include "config.h"
+#include "communicationmodule.h"
 
-
-ServerApp::ServerApp(bool const textModeFlag)
-    : App(textModeFlag)
+ServerApp::ServerApp() : serverWindow(*this)
 {
-    if (false == textModeFlag) {
-        pServerWindow = std::make_unique<ServerWindow>(*this);
-        pServerWindow->show();
+    if (false == Config::textMode) {
+        serverWindow.show();
     }
+
+    this->commModule.initServerConnection();
+
+    this->serverWindow.fillDevicesSelector(this->soundCollector.getInputs());
+
+    QObject::connect(&commModule, &CommunicationModule::clientConnected, &serverWindow, &ServerWindow::clientConnected);
 
     qDebug() << "ServerApp";
 }
 
-void ServerApp::start()
+void ServerApp::start(void)
 {
     qDebug() << "RESUME";
 }
 
-void ServerApp::stop()
+void ServerApp::stop(void)
 {
     qDebug() << "SUSPEND";
 }

@@ -5,11 +5,7 @@
 
 class AppLoader
 {
-private:
 
-	bool const textModeFlag;
-public:
-	AppLoader(bool const textModeFlag);
 };
 
 #endif // APPLOADER_H
