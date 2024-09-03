@@ -1,12 +1,12 @@
 #include <ranges>
+#include <QChart>
+#include <QBarSeries>
+#include <QBarCategoryAxis>
+#include <QChartView>
+#include <QVBoxLayout>
+#include <QValueAxis>
 #include "visualizationvolumebar.h"
-#include "QChart"
-#include "QBarSeries"
-#include "QBarCategoryAxis"
-#include "QChartView"
-#include "QVBoxLayout"
-#include "QValueAxis"
-#include "soundcollector.h"
+#include "server/soundcollector.h"
 
 QWidget *VisualizationVolumeBar::getWidget(void)
 {

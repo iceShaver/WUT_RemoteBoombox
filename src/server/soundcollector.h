@@ -1,5 +1,6 @@
 #ifndef SOUNDCOLLECTOR_H
 #define SOUNDCOLLECTOR_H
+
 #include <QIODevice>
 #include <QAudioFormat>
 #include <QAudioSource>

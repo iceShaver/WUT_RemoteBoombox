@@ -3,7 +3,7 @@
 #include "visualizationvolumebar.h"
 #include "visualizationcolor.h"
 #include "clientwindow.h"
-#include "config.h"
+#include "common/config.h"
 
 ClientApp::ClientApp()
 {
@@ -12,22 +12,11 @@ ClientApp::ClientApp()
         pClientWindow->show();
     }
 
-    commModule.initClientConnection();
+    // start(QHostAddress(CommunicationModule::SERVER_ADDR), CommunicationModule::SERVER_PORT);
+}
 
-    QObject::connect(&commModule, &CommunicationModule::rcvd, &commModule, [&](CommunicationModule::AppDataMsg const msg)
-    {
-        QVector<double> spectogram;
-        spectogram.reserve(USEFUL_SPECTOGRAM_DATA_LEN);
-        std::copy(msg.data, msg.data + USEFUL_SPECTOGRAM_DATA_LEN, std::back_inserter(spectogram));
-        // this->pClientWindow->updateSpectogram(spectogram);
-
-        if (nullptr != this->pActiveVisualization)
-        {
-            this->pActiveVisualization->update(spectogram);
-        }
-
-    });
-
+ClientApp::~ClientApp()
+{
 }
 
 void ClientApp::setVisualization(EVisualization const vis)
@@ -56,4 +45,30 @@ void ClientApp::setVisualization(EVisualization const vis)
         QWidget *pVisualizationWidget = this->pActiveVisualization->getWidget();
         this->pClientWindow->setVisualizationWidget(pVisualizationWidget);
     }
+}
+
+void ClientApp::start(QHostAddress serverAddr, uint16_t serverPort)
+{
+    commModule.initClientConnection(serverAddr, serverPort);
+    setVisualization(EVisualization::VOLUME_BAR);
+
+    QObject::connect(&commModule, &CommunicationModule::rcvd, &commModule, [&](CommunicationModule::AppDataMsg const msg)
+    {
+        QVector<double> spectogram;
+        spectogram.reserve(USEFUL_SPECTOGRAM_DATA_LEN);
+        std::copy(msg.data, msg.data + USEFUL_SPECTOGRAM_DATA_LEN, std::back_inserter(spectogram));
+        // this->pClientWindow->updateSpectogram(spectogram);
+
+        if (nullptr != this->pActiveVisualization)
+        {
+            this->pActiveVisualization->update(spectogram);
+        }
+    });
+}
+
+void ClientApp::stop()
+{
+    commModule.stop();
+    commModule.disconnect();
+    this->pActiveVisualization = nullptr;
 }

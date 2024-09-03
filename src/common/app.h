@@ -2,12 +2,13 @@
 #define APP_H
 
 #include <QUdpSocket>
-#include "communicationmodule.h"
+#include <QObject>
+#include "common/communicationmodule.h"
 
 /**
  * @brief The App class
  */
-class App
+class App : public QObject
 {
 public:
     CommunicationModule commModule; /**< Communication module */

@@ -1,11 +1,10 @@
 #include <iostream>
-
-#include "apploader.h"
-#include "clientapp.h"
-#include "serverapp.h"
 #include <QApplication>
 #include <QCommandLineParser>
-#include "config.h"
+#include "common/config.h"
+#include "common/apploader.h"
+#include "client/clientapp.h"
+#include "server/serverapp.h"
 
 int main(int argc, char *argv[])
 {

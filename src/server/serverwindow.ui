@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Stop</string>
+     <string>Start</string>
     </property>
    </widget>
    <widget class="QComboBox" name="audioDeviceComboBox">
@@ -54,6 +54,52 @@
     </property>
     <property name="text">
      <string>Source select</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="netIfcComboBox">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>80</y>
+      <width>411</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>60</y>
+      <width>161</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Network interface select</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="portNumberInput">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>130</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>110</y>
+      <width>37</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Port</string>
     </property>
    </widget>
   </widget>

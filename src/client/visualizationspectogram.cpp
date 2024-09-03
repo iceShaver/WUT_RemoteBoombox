@@ -1,5 +1,5 @@
 #include "visualizationspectogram.h"
-#include "soundcollector.h"
+#include "server/soundcollector.h"
 
 QWidget *VisualizationSpectogram::getWidget(void)
 {

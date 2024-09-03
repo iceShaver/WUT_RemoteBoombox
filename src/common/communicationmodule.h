@@ -7,7 +7,7 @@
 #include <map>
 #include <tuple>
 #include <mutex>
-#include "soundcollector.h"
+#include "server/soundcollector.h"
 
 
 struct Client
@@ -27,7 +27,7 @@ public:
     auto const constexpr static MSG_TYPE_CLIENT_ANNOUNCEMENT = 0xEFu;
     auto const constexpr static SERVER_PORT = 55123;
     auto const constexpr static SERVER_ADDR = "127.0.0.1";
-    auto const constexpr static CLIENT_TMT_MS = 1000u;
+    auto const constexpr static CONN_TMT_MS = 1000u;
 
     using AudioDataType = double;
 
@@ -45,32 +45,37 @@ public:
         uint32_t msgId;
         uint8_t msgType;
     };
-
     __pragma(pack(pop))
 
-
-
     CommunicationModule();
-    void initServerConnection();
-    void initClientConnection();
+    void initServerConnection(QHostAddress addr, uint16_t port);
+    void initClientConnection(QHostAddress addr, uint16_t port);
     void sndSpectogram(QVector<double> &spectogram);
     void serverRcv();
     void clientRcv();
+    void stop();
+    bool isServerConnected();
 
 signals:
     void rcvd(AppDataMsg const data);
-    void clientConnected(uint32_t client_no, Client const &newClient);
-
+    void clientConnectionChanged(uint32_t client_no, Client const &newClient);
+    void serverConnected();
+    void serverDisconnected();
 
 private:
-    std::unique_ptr<QUdpSocket> pUdpSocket;
-    uint32_t txSeqNo;
-    uint32_t rxSeqNo;
+    std::unique_ptr<QUdpSocket> pUdpSocket = nullptr;
+    uint32_t txSeqNo = 0;
+    uint32_t rxSeqNo = 0;
 
     std::map<std::tuple<uint32_t, uint16_t>, Client> clients;
     std::mutex clients_mutex;
     std::thread clientManagementThread;
     std::thread announcementThread;
+    int32_t serverConnTmtCntr = 0;
+    QHostAddress serverAddr;
+    uint16_t serverPort;
+    std::atomic_bool client_thread_active = true;
+    std::atomic_bool server_thread_active = true;
 };
 
 #endif // COMMUNICATIONMODULE_H

@@ -1,8 +1,8 @@
 #ifndef VISUALIZATIONVOLUMEBAR_H
 #define VISUALIZATIONVOLUMEBAR_H
 
+#include <QBarSet>
 #include "visualization.h"
-#include "QBarSet"
 
 class VisualizationVolumeBar : public Visualization
 {

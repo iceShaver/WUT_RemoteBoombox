@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFormLayout>
 
 class ClientApp;
 
@@ -20,6 +24,7 @@ public:
     ~ClientWindow();
     void setColor(double const value);
     void setVisualizationWidget(QWidget *pWidget);
+    void selectServerDialogShow();
 
 private:
     Ui::ClientWindow *ui;
@@ -28,8 +33,15 @@ private:
     QAction *pSetVisualizationSpectogramAction;
     QAction *pSetVisualizationVolumeBarAction;
     QAction *pSetVisualizationColorAction;
+    QMenu *pViewMenu;
+    QAction *pSetFullscreenAction;
+    QAction *pSetWindowAction;
     QLabel *infoLabel;
 
+    QMenu *pConnectionMenu;
+    QAction *pSelectServerAction;
+
+    QLabel *pStatus;
 };
 
 #endif // CLIENTWINDOW_H

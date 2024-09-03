@@ -1,6 +1,6 @@
-#include "soundcollector.h"
 #include <QMediaDevices>
 #include <QDebug>
+#include "soundcollector.h"
 
 SoundCollector::SoundCollector() : SoundCollector(QMediaDevices::defaultAudioInput())
 {
