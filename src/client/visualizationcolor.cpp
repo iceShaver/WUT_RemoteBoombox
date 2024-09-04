@@ -4,13 +4,12 @@ const constexpr auto COLOR_CHNG_MIN_INTERVAL = 2u;
 
 QWidget *VisualizationColor::getWidget(void)
 {
-    this->pWidget = new QWidget(this->pClientWindow.get());
+    mpWidget = new QWidget;
+    mpWidget->setAutoFillBackground(true);
+    palette.setColor(mpWidget->backgroundRole(), Qt::GlobalColor::red);
+    mpWidget->setPalette(palette);
 
-    this->pWidget->setAutoFillBackground(true);
-    this->palette.setColor(this->pWidget->backgroundRole(), Qt::GlobalColor::red);
-    this->pWidget->setPalette(this->palette);
-
-    return this->pWidget;
+    return mpWidget;
 }
 
 void VisualizationColor::update(QVector<double> &spectogram)
@@ -41,9 +40,8 @@ void VisualizationColor::update(QVector<double> &spectogram)
 
 void VisualizationColor::setNextColor(void)
 {
-    this->currentColor = (Qt::GlobalColor)((this->currentColor + 1) % Qt::GlobalColor::transparent);
-
-    this->palette.setColor(this->pWidget->backgroundRole(), this->currentColor);
-    this->pWidget->setPalette(this->palette);
+    currentColor = (Qt::GlobalColor)((currentColor + 1) % Qt::GlobalColor::transparent);
+    palette.setColor(mpWidget->backgroundRole(), currentColor);
+    mpWidget->setPalette(palette);
 
 }

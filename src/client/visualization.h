@@ -3,22 +3,42 @@
 
 #include "clientwindow.h"
 
+/**
+ * @brief Enumeration of available Visualizations
+ */
 enum class EVisualization {
-    SPECTOGRAM,
-    VOLUME_BAR,
+    FREQ_SPECTRUM_PLOT,
+    FREQ_SPECTRUM_BARS,
     COLOR
 };
 
+/**
+ * @brief The abstract Visualization class
+ */
 class Visualization
 {
 public:
-    Visualization(std::shared_ptr<ClientWindow> pClientWindow);
+    /**
+     * @brief Visualization constructor
+     */
+    Visualization();
 
+    /**
+     * @brief Visualization desctructor
+     */
+    virtual ~Visualization();
+
+    /**
+     * @brief Virtual function which returns visualization widget
+     * @return Pointer to the visualization widget
+     */
     virtual QWidget *getWidget(void) = 0;
-    virtual void update(QVector<double> &spectogram) = 0;
 
-protected:
-    std::shared_ptr<ClientWindow> pClientWindow = nullptr;
+    /**
+     * @brief Virtual function which updates visualization with audio data
+     * @param audioData Reference to received audio data
+     */
+    virtual void update(QVector<double> &audioData) = 0;
 };
 
 #endif // VISUALIZATION_H

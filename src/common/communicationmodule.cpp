@@ -16,7 +16,7 @@ void CommunicationModule::initServerConnection(QHostAddress addr, uint16_t port)
 {
     if (pUdpSocket)
     {
-        disconnect(this->pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::serverRcv);
+        disconnect(pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::serverRcv);
     }
 
     pUdpSocket = std::make_unique<QUdpSocket>();
@@ -28,7 +28,7 @@ void CommunicationModule::initServerConnection(QHostAddress addr, uint16_t port)
         );
     }
 
-    connect(this->pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::serverRcv);
+    connect(pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::serverRcv);
 
     if (clientManagementThread.joinable())
     {
@@ -56,7 +56,7 @@ void CommunicationModule::initServerConnection(QHostAddress addr, uint16_t port)
             {
                 if (it->second.delete_flag)
                 {
-                    emit clientConnectionChanged(clients.size() - 1u, it->second);
+                    emit clientConnectionChanged((uint32_t)clients.size() - 1u, it->second);
                     clients.erase(it++);
                 }
                 else
@@ -75,6 +75,7 @@ void CommunicationModule::initClientConnection(QHostAddress addr, uint16_t port)
     serverAddr = addr;
     serverPort = port;
     pUdpSocket->bind(QHostAddress::LocalHost);
+    serverConnTmtCntr = 0;
 
     if (announcementThread.joinable())
     {
@@ -86,10 +87,13 @@ void CommunicationModule::initClientConnection(QHostAddress addr, uint16_t port)
 
     announcementThread = std::thread([&]
     {
-        auto const constexpr msg = AppClientAnnouncementMsg
+        auto const constexpr msg = MsgClientAnnouncement
         {
-            .msgId = APP_MSG_ID,
-            .msgType = MSG_TYPE_CLIENT_ANNOUNCEMENT,
+            .hdr =
+            {
+                .msgId = APP_MSG_ID,
+                .msgType = (uint8_t)EMsgType::CLIENT_ANNOUNCEMENT
+            }
         };
 
         while (client_thread_active)
@@ -111,41 +115,76 @@ void CommunicationModule::initClientConnection(QHostAddress addr, uint16_t port)
 
     });
 
-    connect(this->pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::clientRcv);
+    connect(pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::clientRcv);
 }
 
-void CommunicationModule::sndSpectogram(QVector<double> &spectogram)
+void CommunicationModule::sendAudioData(QVector<double> &audioData)
 {
-//    qDebug() << "sending new spectogram";
+    auto msg = MsgAudioData
+    {
+        .hdr =
+        {
+            .msgId = APP_MSG_ID,
+            .msgType = (uint8_t)EMsgType::DATA
+        },
+        .seqNo = txSeqNo
+    };
 
-    auto msg = AppDataMsg{.msgId = APP_MSG_ID, .msgType = MSG_TYPE_DATA, .seqNo = txSeqNo};
-    memcpy(msg.data, (uint8_t *)spectogram.data(), std::min(spectogram.size(), (qsizetype)USEFUL_SPECTOGRAM_DATA_LEN) * sizeof(double));
+    memcpy(msg.data, (uint8_t *)audioData.data(), USEFUL_SPECTOGRAM_DATA_LEN * sizeof(double));
 
     auto const lock = std::lock_guard(clients_mutex);
-    for (auto &[k,v] : clients) {
+
+    for (auto &[k,v] : clients)
+    {
         pUdpSocket->writeDatagram((char const *) &msg, sizeof(msg), v.hostAddr, v.hostPort);
     }
 
     ++txSeqNo;
 }
 
+void CommunicationModule::stop()
+{
+    client_thread_active = false;
+    server_thread_active = false;
+    serverConnTmtCntr = 0;
+
+    if (clientManagementThread.joinable())
+    {
+        clientManagementThread.join();
+    }
+
+    if(announcementThread.joinable())
+    {
+        announcementThread.join();
+    }
+
+    if (pUdpSocket)
+    {
+        disconnect(pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::serverRcv);
+    }
+
+    pUdpSocket = nullptr;
+
+}
+
 void CommunicationModule::serverRcv()
 {
     QNetworkDatagram const d = pUdpSocket->receiveDatagram();
     QByteArray arr = d.data();
-    auto *p_msg = (AppClientAnnouncementMsg const *)arr.constData();
+    auto *p_msg = (MsgClientAnnouncement const *)arr.constData();
 
-    if (APP_MSG_ID != p_msg->msgId)
+    if (APP_MSG_ID != p_msg->hdr.msgId)
     {
         // drop
     }
-    else if (MSG_TYPE_CLIENT_ANNOUNCEMENT != p_msg->msgType)
+    else if ((uint8_t)EMsgType::CLIENT_ANNOUNCEMENT != p_msg->hdr.msgType)
     {
         // drop
     }
     else
     {
-        auto const client = Client {
+        auto const client = Client
+        {
             .delete_flag = false,
             .hostAddr = d.senderAddress(),
             .hostPort = (uint16_t)d.senderPort()
@@ -163,7 +202,7 @@ void CommunicationModule::serverRcv()
         else
         {
             clients.insert({{client.hostAddr.toIPv4Address(), client.hostPort}, client});
-            emit clientConnectionChanged(clients.size(), client);
+            emit clientConnectionChanged((uint32_t)clients.size(), client);
         }
     }
 }
@@ -177,14 +216,14 @@ void CommunicationModule::clientRcv()
     }
 
     QByteArray arr = d.data();
-    AppDataMsg const *p_msg = (AppDataMsg const *)arr.constData();
+    auto const *p_msg = (MsgAudioData const *)arr.constData();
     //        qDebug() << "rcvd id=0x" << Qt::hex <<p_msg->msgId << " seq_no=0x" << p_msg->seqNo << " val=" << *(double *)&p_msg->data;
 
-    if (APP_MSG_ID != p_msg->msgId)
+    if (APP_MSG_ID != p_msg->hdr.msgId)
     {
         // drop
     }
-    else if (MSG_TYPE_DATA != p_msg->msgType)
+    else if ((uint8_t)EMsgType::DATA != p_msg->hdr.msgType)
     {
         // drop
     }
@@ -196,37 +235,7 @@ void CommunicationModule::clientRcv()
         }
 
         serverConnTmtCntr = CONN_TMT_MS;
-        emit rcvd(*p_msg);
+        emit audioDataRcvd(*p_msg);
     }
 }
-
-void CommunicationModule::stop()
-{
-    client_thread_active = false;
-    server_thread_active = false;
-
-    if (clientManagementThread.joinable())
-    {
-        clientManagementThread.join();
-    }
-
-    if(announcementThread.joinable())
-    {
-        announcementThread.join();
-    }
-
-    if (pUdpSocket)
-    {
-        disconnect(this->pUdpSocket.get(), &QUdpSocket::readyRead, this, &CommunicationModule::serverRcv);
-    }
-
-    pUdpSocket = nullptr;
-
-}
-
-bool CommunicationModule::isServerConnected()
-{
-    return 0 != serverConnTmtCntr;
-}
-
 

@@ -37,14 +37,23 @@ public:
     void stop(void);
 
 public slots:
+    /**
+     * @brief New audio data from sound collector slot
+     * @param p_data Pointer to the new audio data
+     * @param len Length of the audio data
+     */
     void newData(double *const p_data, uint32_t const len);
+
+    /**
+     * @brief Audio source device changed event slot
+     * @param dev New Audio device
+     */
     void srcDeviceChanged(QAudioDevice const &dev);
 
 
 
 private:
-
-    ServerWindow serverWindow; /**< Application window object */
+    ServerWindow serverWindow;
     std::unique_ptr<SoundCollector> pSc;
     QVector<double> x_axis_vals;
 

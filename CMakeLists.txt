@@ -26,13 +26,12 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 
 set(PROJECT_SOURCES
 		src/main.cpp
-		src/common/mainwindow.cpp
-		src/common/mainwindow.h
-		src/common/mainwindow.ui
-		src/common/apploader.h src/common/apploader.cpp
+
+
+
 		src/common/app.h src/common/app.cpp
 		src/common/communicationmodule.h src/common/communicationmodule.cpp
-		src/common/config.h src/common/config.c
+
 		src/server/serverwindow.h src/server/serverwindow.cpp src/server/serverwindow.ui
 		src/server/serverapp.h src/server/serverapp.cpp
 		src/server/soundcollector.h src/server/soundcollector.cpp
@@ -40,7 +39,7 @@ set(PROJECT_SOURCES
 		src/client/clientapp.h src/client/clientapp.cpp
 		src/client/visualization.h src/client/visualization.cpp
 		src/client/qcustomplot.cpp
-		src/client/visualizationspectogram.h src/client/visualizationspectogram.cpp
+		src/client/visualizationfreqspectrumplot.h src/client/visualizationfreqspectrumplot.cpp
 		src/client/visualizationcolor.h src/client/visualizationcolor.cpp
 		src/client/visualizationvolumebar.h src/client/visualizationvolumebar.cpp
 )

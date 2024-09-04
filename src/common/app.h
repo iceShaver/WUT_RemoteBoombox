@@ -11,7 +11,17 @@
 class App : public QObject
 {
 public:
+    /**
+     * @brief Destructor of App
+     */
+    virtual ~App();
+
+    /**
+     * @brief Communication module for communicating with server or client
+     */
     CommunicationModule commModule; /**< Communication module */
 };
+
+
 
 #endif // APP_H

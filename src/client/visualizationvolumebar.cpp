@@ -15,7 +15,7 @@ QWidget *VisualizationVolumeBar::getWidget(void)
 
     for (auto i = 0u; i < NUM_SAMPLES / 4u; ++i)
     {
-        this->x_axis_vals.append(cur_x_val += X_AXIS_STEP);
+        x_axis_vals.append(cur_x_val += X_AXIS_STEP);
     }
 
     auto pChart = new QChart();
@@ -23,15 +23,16 @@ QWidget *VisualizationVolumeBar::getWidget(void)
     auto pAxisY = new QValueAxis();
     pChart->setAnimationOptions(QChart::NoAnimation);
     pChart->setTheme(QChart::ChartThemeDark);
-    pChart->setTitle("Sound spectrum");
+    pChart->setTitle("Sound frequency spectrum");
 
     pAxisX->setLabelsVisible();
     pAxisY->setLabelsVisible();
     pAxisY->setMin(0);
     pAxisY->setMax(10);
+
     for (int i = 0; i < USEFUL_SPECTOGRAM_DATA_LEN; ++i)
     {
-        pAxisX->append(QString::number(this->x_axis_vals[i]));
+        pAxisX->append(QString::number(x_axis_vals[i]));
     }
     pChart->legend()->hide();
     pChart->addAxis(pAxisX, Qt::AlignBottom);
@@ -40,7 +41,7 @@ QWidget *VisualizationVolumeBar::getWidget(void)
     for (int i = 0; i < USEFUL_SPECTOGRAM_DATA_LEN; ++i)
     {
         auto pSeries = new QBarSeries();
-        pSets.append(new QBarSet(QString::number(this->x_axis_vals[i])));
+        pSets.append(new QBarSet(QString::number(x_axis_vals[i])));
         *pSets.last() << 1.0;
         pSeries->append(pSets.last());
         pChart->addSeries(pSeries);

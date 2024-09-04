@@ -1,15 +1,14 @@
-#ifndef VISUALIZATIONCOLOR_H
-#define VISUALIZATIONCOLOR_H
+#ifndef VISUALIZATIONSPECTOGRAM_H
+#define VISUALIZATIONSPECTOGRAM_H
 
 #include "visualization.h"
+#include "qcustomplot.h"
 
 /**
- * @brief Color background visualization
+ * @brief Frequency spectrum plot visualization
  */
-class VisualizationColor : public Visualization
+class VisualizationFreqSpectrumPlot : public Visualization
 {
-
-public:
     /**
      * @brief Function returns visualization widget
      * @return Pointer to the visualization widget
@@ -23,10 +22,9 @@ public:
     void update(QVector<double> &spectogram) override;
 
 private:
-    void setNextColor(void);
-    QWidget *mpWidget;
-    QPalette palette;
-    Qt::GlobalColor currentColor;
+    QCustomPlot *mpCustomPlot;
+    QVector<double> x_axis_vals;
+
 };
 
-#endif // VISUALIZATIONCOLOR_H
+#endif // VISUALIZATIONSPECTOGRAM_H

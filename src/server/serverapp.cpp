@@ -8,17 +8,13 @@
 #include <QUrl>
 #include <ranges>
 #include "serverapp.h"
-#include "common/config.h"
 #include "common/communicationmodule.h"
 #include "soundcollector.h"
 #include "fftw3.h"
 
-ServerApp::ServerApp() :
-    serverWindow(*this)
+ServerApp::ServerApp() : serverWindow(*this)
 {
-    if (false == Config::textMode) {
-        serverWindow.show();
-    }
+    serverWindow.show();
 
     auto const constexpr X_AXIS_STEP = (RANGE_END - RANGE_START) / (NUM_SAMPLES / 4u);
     auto cur_x_val = RANGE_START;
@@ -26,42 +22,43 @@ ServerApp::ServerApp() :
         x_axis_vals.append(cur_x_val += X_AXIS_STEP);
     }
 
-    this->serverWindow.fillDevicesSelector(this->pSc->getInputs());
+    serverWindow.fillDevicesSelector(pSc->getInputs());
 
     auto const f = QNetworkInterface::allAddresses()
         | std::views::filter([](auto &ip){return ip.protocol() == QAbstractSocket::IPv4Protocol;})
         | std::ranges::to<QList>();
 
-    this->serverWindow.fillNetAddresses(f);
+    serverWindow.fillNetAddresses(f);
 
-    this->connect(&commModule, &CommunicationModule::clientConnectionChanged, &serverWindow, &ServerWindow::clientConnected);
-    this->connect(&this->serverWindow, &ServerWindow::srcDeviceChanged, this, &ServerApp::srcDeviceChanged);
+    connect(&commModule, &CommunicationModule::clientConnectionChanged, &serverWindow, &ServerWindow::clientConnected);
+    connect(&serverWindow, &ServerWindow::srcDeviceChanged, this, &ServerApp::srcDeviceChanged);
 
     qDebug() << "ServerApp";
 }
 
 ServerApp::~ServerApp()
 {
-    QObject::disconnect(this->pSc.get(), &SoundCollector::newData, this, &ServerApp::newData);
+    QObject::disconnect(pSc.get(), &SoundCollector::newData, this, &ServerApp::newData);
 }
 
 void ServerApp::start(QAudioDevice dev, QHostAddress addr, uint16_t port)
 {
     qDebug() << "START";
-    this->commModule.initServerConnection(addr, port);
-    this->srcDeviceChanged(dev);
+    commModule.initServerConnection(addr, port);
+    srcDeviceChanged(dev);
 }
 
 void ServerApp::stop(void)
 {
     qDebug() << "STOP";
 
-    if (this->pSc)
+    if (pSc)
     {
-        this->disconnect(this->pSc.get(), &SoundCollector::newData, this, &ServerApp::newData);
-        this->pSc = nullptr;
+        disconnect(pSc.get(), &SoundCollector::newData, this, &ServerApp::newData);
+        pSc = nullptr;
     }
-    this->commModule.stop();
+
+    commModule.stop();
 }
 
 
@@ -81,11 +78,10 @@ void ServerApp::newData(double *const p_data, uint32_t const len)
 
     if (0 != fftVec.size())
     {
-        this->serverWindow.updateVolumeLevel(20.0 * (std::accumulate(fftVec.begin(), fftVec.end(), 0.0)) / fftVec.size());
+        serverWindow.updateVolumeLevel(20.0 * (std::accumulate(fftVec.begin(), fftVec.end(), 0.0)) / fftVec.size());
     }
 
-    this->commModule.sndSpectogram(fftVec);
-
+    commModule.sendAudioData(fftVec);
 }
 
 void ServerApp::srcDeviceChanged(QAudioDevice const &dev)

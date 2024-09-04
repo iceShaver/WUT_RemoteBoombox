@@ -8,31 +8,30 @@ SoundCollector::SoundCollector() : SoundCollector(QMediaDevices::defaultAudioInp
 
 SoundCollector::SoundCollector(QAudioDevice dev)
 {
-    this->format.setSampleRate(SAMPLE_FREQ);
-    this->format.setChannelCount(1);
-    this->format.setSampleFormat(QAudioFormat::Int16);
-
-    this->pAudioSrc = std::make_unique<QAudioSource>(dev, this->format);
-    this->start();
-    this->pAudioSrc->start(this);
+    format.setSampleRate(SAMPLE_FREQ);
+    format.setChannelCount(1);
+    format.setSampleFormat(QAudioFormat::Int16);
+    pAudioSrc = std::make_unique<QAudioSource>(dev, format);
+    start();
+    pAudioSrc->start(this);
 }
 
 void SoundCollector::start()
 {
-    if (this->pAudioSrc)
+    if (pAudioSrc)
     {
-        this->open(QIODevice::WriteOnly);
-        this->pAudioSrc->start(this);
+        open(QIODevice::WriteOnly);
+        pAudioSrc->start(this);
     }
 
 }
 
 void SoundCollector::stop()
 {
-    if (this->pAudioSrc)
+    if (pAudioSrc)
     {
-        this->pAudioSrc->stop();
-        this->close();
+        pAudioSrc->stop();
+        close();
     }
 }
 

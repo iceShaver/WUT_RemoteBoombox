@@ -1,15 +1,13 @@
-#include <iostream>
 #include <QApplication>
 #include <QCommandLineParser>
-#include "common/config.h"
-#include "common/apploader.h"
 #include "client/clientapp.h"
 #include "server/serverapp.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
     std::cout << "Starting RemoteBoomBox" << std::endl;
-    //   display selection window
+
     QApplication app(argc, argv);
     QApplication::setOrganizationName(QApplication::translate("main", "kamil"));
     QApplication::setOrganizationName(QApplication::translate("main", "RemoteBoomBox"));
@@ -28,19 +26,20 @@ int main(int argc, char *argv[])
         {{"t", "tui"}, QApplication::translate("main", "Run application in text mode")});
 
     cmdParser.process(app);
-    Config::textMode = cmdParser.isSet("t");
     std::unique_ptr<App> pApp = nullptr;
 
-    if (true == cmdParser.isSet("s")) {
+    if (true == cmdParser.isSet("s"))
+    {
         pApp = std::make_unique<ServerApp>();
-    } else if (true == cmdParser.isSet("c")) {
-        pApp = std::make_unique<ClientApp>();
-    } else {
-        AppLoader appLoader;
     }
-
-//	MainWindow w;
-//	w.show();
+    else if (true == cmdParser.isSet("c"))
+    {
+        pApp = std::make_unique<ClientApp>();
+    }
+    else
+    {
+        // do nothing
+    }
 
     auto const retval = app.exec();
     pApp.release();
