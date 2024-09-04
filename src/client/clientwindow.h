@@ -26,6 +26,11 @@ public:
     void setVisualizationWidget(QWidget *pWidget);
     void selectServerDialogShow();
 
+
+public slots:
+    void connected(void);
+    void disconnected(void);
+
 private:
     Ui::ClientWindow *ui;
     ClientApp &clientApp;

@@ -120,7 +120,9 @@ void ClientWindow::selectServerDialogShow()
     QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(rejected()));
 
     serverIpLabel.setText("IP address");
+    serverIpInput.setText(CommunicationModule::DEFAULT_SERVER_ADDR);
     serverPortLabel.setText("Port");
+    serverPortInput.setText(QString::number(CommunicationModule::DEFAULT_SERVER_PORT));
 
     serverPortInput.setValidator(new QIntValidator(0, UINT16_MAX, &dialog));
 
@@ -135,4 +137,14 @@ void ClientWindow::selectServerDialogShow()
         qDebug() << "changed server";
         clientApp.start(QHostAddress(serverIpInput.text()), serverPortInput.text().toUInt());
     }
+}
+
+void ClientWindow::connected(void)
+{
+    pStatus->setText("Status: Connected");
+}
+
+void ClientWindow::disconnected(void)
+{
+    pStatus->setText("Status: Disconnected");
 }

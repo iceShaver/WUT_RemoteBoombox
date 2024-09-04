@@ -30,7 +30,7 @@ ServerWindow::ServerWindow(ServerApp &serverApp, QWidget *parent) :
     volumeLevelBar.setRange(0, 100);
 
     ui->portNumberInput->setValidator(new QIntValidator(1, UINT16_MAX, this));
-    ui->portNumberInput->setText(QString::number(CommunicationModule::SERVER_PORT));
+    ui->portNumberInput->setText(QString::number(CommunicationModule::DEFAULT_SERVER_PORT));
     statusBar()->addPermanentWidget(&statusLabel);
 
     statusBar()->addPermanentWidget(&clientsNoLabel);

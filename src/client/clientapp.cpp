@@ -13,6 +13,8 @@ ClientApp::ClientApp()
     }
 
     // start(QHostAddress(CommunicationModule::SERVER_ADDR), CommunicationModule::SERVER_PORT);
+    this->connect(&commModule, &CommunicationModule::serverConnected, pClientWindow.get(), &ClientWindow::connected);
+    this->connect(&commModule, &CommunicationModule::serverDisconnected, pClientWindow.get(), &ClientWindow::disconnected);
 }
 
 ClientApp::~ClientApp()

@@ -25,8 +25,8 @@ public:
     auto const constexpr static APP_MSG_ID = 0xAA00DD11u;
     auto const constexpr static MSG_TYPE_DATA = 0x55u;
     auto const constexpr static MSG_TYPE_CLIENT_ANNOUNCEMENT = 0xEFu;
-    auto const constexpr static SERVER_PORT = 55123;
-    auto const constexpr static SERVER_ADDR = "127.0.0.1";
+    auto const constexpr static DEFAULT_SERVER_PORT = 55123;
+    auto const constexpr static DEFAULT_SERVER_ADDR = "127.0.0.1";
     auto const constexpr static CONN_TMT_MS = 1000u;
 
     using AudioDataType = double;
