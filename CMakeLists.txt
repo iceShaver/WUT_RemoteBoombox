@@ -26,12 +26,8 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 
 set(PROJECT_SOURCES
 		src/main.cpp
-
-
-
 		src/common/app.h src/common/app.cpp
 		src/common/communicationmodule.h src/common/communicationmodule.cpp
-
 		src/server/serverwindow.h src/server/serverwindow.cpp src/server/serverwindow.ui
 		src/server/serverapp.h src/server/serverapp.cpp
 		src/server/soundcollector.h src/server/soundcollector.cpp
